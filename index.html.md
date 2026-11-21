@@ -165,7 +165,7 @@ there.
 
 ## Links
 
-- **GitHub**: https://github.com/thorwhalen/ef
+- **GitHub**: https://github.com/addaix/ef
 - **vd** (vector-store interface): https://github.com/i2mint/vd
 - **imbed** (heavy embedding/clustering implementations): https://github.com/thorwhalen/imbed
 

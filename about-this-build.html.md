@@ -2,31 +2,29 @@
 
 # About this build
 
-This documentation was built on **2026-10-26 10:43 UTC** from commit <a href="https://github.com/thorwhalen/ef/commit/af507b21fed09f13f23827a2fc3ad1a42aeb0068"><code>af507b2</code></a> on branch <code>main</code>, for **ef 0.1.27** (from <code>pyproject.toml</code>).
+This documentation was built on **2026-11-21 15:14 UTC** from commit <a href="https://github.com/addaix/ef/commit/e2c2491876865d078de169aa040d568ac4bec029"><code>e2c2491</code></a> on branch <code>main</code>, for **ef 0.1.28** (from <code>pyproject.toml</code>).
 
-#### WARNING
-The documentation and the package may be misaligned:
-
-- The documented version (0.1.27) is behind the latest release on PyPI (0.1.28): `pip install ef` gives newer code than these docs describe.
+#### NOTE
+Nothing suggests a mismatch: the tree was clean at the commit above, and the documented version is the one on PyPI.
 
 ## Source
 
-|                     |                                                                                                                                                      |
-|---------------------|------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Commit              | <a href="https://github.com/thorwhalen/ef/commit/af507b21fed09f13f23827a2fc3ad1a42aeb0068"><code>af507b21fed09f13f23827a2fc3ad1a42aeb0068</code></a> |
-| Branch              | <code>main</code>                                                                                                                                    |
-| Tags at this commit | none                                                                                                                                                 |
-| Working tree        | clean                                                                                                                                                |
-| Remote              | <code>https://github.com/thorwhalen/ef</code>                                                                                                        |
+|                     |                                                                                                                                                  |
+|---------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|
+| Commit              | <a href="https://github.com/addaix/ef/commit/e2c2491876865d078de169aa040d568ac4bec029"><code>e2c2491876865d078de169aa040d568ac4bec029</code></a> |
+| Branch              | <code>main</code>                                                                                                                                |
+| Tags at this commit | none                                                                                                                                             |
+| Working tree        | clean                                                                                                                                            |
+| Remote              | <code>https://github.com/addaix/ef</code>                                                                                                        |
 
 ## Continuous integration
 
 |              |                                                                                            |
 |--------------|--------------------------------------------------------------------------------------------|
-| Repository   | <code>thorwhalen/ef</code>                                                                 |
-| Run          | <a href="https://github.com/thorwhalen/ef/actions/runs/40309450952">40309450952</a>        |
+| Repository   | <code>addaix/ef</code>                                                                     |
+| Run          | <a href="https://github.com/addaix/ef/actions/runs/44917952158">44917952158</a>            |
 | Ref          | <code>refs/heads/main</code>                                                               |
-| Event commit | <code>af507b21fed09f13f23827a2fc3ad1a42aeb0068</code> (in the history of the built commit) |
+| Event commit | <code>e2c2491876865d078de169aa040d568ac4bec029</code> (in the history of the built commit) |
 
 ## Tools
 
@@ -35,7 +33,7 @@ The documentation and the package may be misaligned:
 | epythet  | 0.2.22  |
 | Sphinx   | 9.1.1   |
 | docutils | 0.22.4  |
-| Python   | 3.12.15 |
+| Python   | 3.12.16 |
 
 ## Configuration as resolved
 
@@ -51,13 +49,13 @@ The documentation and the package may be misaligned:
 
 ## Package on PyPI
 
-Latest release: <a href="https://pypi.org/project/ef/0.1.28/">0.1.28</a>, newer than the documented version (0.1.27).
+Latest release: <a href="https://pypi.org/project/ef/0.1.28/">0.1.28</a>, the same as the documented version.
 
 ## Reproduce
 
 ```bash
-git clone https://github.com/thorwhalen/ef && cd ef
-git checkout af507b21fed09f13f23827a2fc3ad1a42aeb0068
+git clone https://github.com/addaix/ef && cd ef
+git checkout e2c2491876865d078de169aa040d568ac4bec029
 pip install "epythet==0.2.22"
 epythet quickstart . --ignore tests/ scrap/ examples/
 ```

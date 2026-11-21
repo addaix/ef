@@ -15,22 +15,22 @@ Skills are folders holding a `SKILL.md` (the [Agent Skills](https://agentskills.
 Developer skill: the target architecture of the ef (Embedding Flow) package. Load at the start of any non-trivial task in the ef repository — refactoring, adding the Embedder/Segmenter facades, the Corpus abstraction, the ArtifactGraph indexing core, or the “ready search” surface. Covers the five-layer model, the core contracts, the light/heavy progressive-disclosure split, and the hard boundaries. Trigger on “work on ef”, “refactor ef”, “implement the embedder/segmenter/corpus/artifact graph”, “ef search”.
 
 ```bash
-gh skill install thorwhalen/ef ef-architecture --agent claude-code
+gh skill install addaix/ef ef-architecture --agent claude-code
 ```
 
-Source: [`skills/ef-architecture`](https://github.com/thorwhalen/ef/tree/HEAD/skills/ef-architecture).
+Source: [`skills/ef-architecture`](https://github.com/addaix/ef/tree/HEAD/skills/ef-architecture).
 
 ## Instruction files
 
 Files agents read before working in this repository.
 
-- [`.claude/CLAUDE.md`](https://github.com/thorwhalen/ef/tree/HEAD/.claude/CLAUDE.md): read by Claude Code
+- [`.claude/CLAUDE.md`](https://github.com/addaix/ef/tree/HEAD/.claude/CLAUDE.md): read by Claude Code
 
 ## Machine-readable documentation
 
 This site publishes the same documentation in forms that fit an agent’s context window:
 
-- [`llms.txt`](https://thorwhalen.github.io/ef/llms.txt): an index of every page with a one-line description ([llms.txt](https://llmstxt.org) format)
-- [`ef.md`](https://thorwhalen.github.io/ef/ef.md): the whole documentation as one Markdown file
+- [`llms.txt`](https://addaix.github.io/ef/llms.txt): an index of every page with a one-line description ([llms.txt](https://llmstxt.org) format)
+- [`ef.md`](https://addaix.github.io/ef/ef.md): the whole documentation as one Markdown file
 - `<page>.html.md`: a rendered Markdown twin of every page, advertised from each page’s `<head>` with `<link rel="alternate" type="text/markdown">`
-- [`objects.inv`](https://thorwhalen.github.io/ef/objects.inv): the Sphinx inventory: a symbol-to-URL index (`sphobjinv convert plain objects.inv -`)
+- [`objects.inv`](https://addaix.github.io/ef/objects.inv): the Sphinx inventory: a symbol-to-URL index (`sphobjinv convert plain objects.inv -`)

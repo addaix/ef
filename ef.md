@@ -1,4 +1,4 @@
-> built 2026-10-26 10:43 UTC from af507b2 (main) · ef 0.1.27. Details: build_info.json
+> built 2026-11-21 15:14 UTC from e2c2491 (main) · ef 0.1.28. Details: build_info.json
 
 # index.html.md
 
@@ -169,7 +169,7 @@ there.
 
 ## Links
 
-- **GitHub**: https://github.com/thorwhalen/ef
+- **GitHub**: https://github.com/addaix/ef
 - **vd** (vector-store interface): https://github.com/i2mint/vd
 - **imbed** (heavy embedding/clustering implementations): https://github.com/thorwhalen/imbed
 
@@ -9526,31 +9526,29 @@ See the module docstring for a complete offline example.
 
 # About this build
 
-This documentation was built on **2026-10-26 10:43 UTC** from commit <a href="https://github.com/thorwhalen/ef/commit/af507b21fed09f13f23827a2fc3ad1a42aeb0068"><code>af507b2</code></a> on branch <code>main</code>, for **ef 0.1.27** (from <code>pyproject.toml</code>).
+This documentation was built on **2026-11-21 15:14 UTC** from commit <a href="https://github.com/addaix/ef/commit/e2c2491876865d078de169aa040d568ac4bec029"><code>e2c2491</code></a> on branch <code>main</code>, for **ef 0.1.28** (from <code>pyproject.toml</code>).
 
-#### WARNING
-The documentation and the package may be misaligned:
-
-- The documented version (0.1.27) is behind the latest release on PyPI (0.1.28): `pip install ef` gives newer code than these docs describe.
+#### NOTE
+Nothing suggests a mismatch: the tree was clean at the commit above, and the documented version is the one on PyPI.
 
 ## Source
 
-|                     |                                                                                                                                                      |
-|---------------------|------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Commit              | <a href="https://github.com/thorwhalen/ef/commit/af507b21fed09f13f23827a2fc3ad1a42aeb0068"><code>af507b21fed09f13f23827a2fc3ad1a42aeb0068</code></a> |
-| Branch              | <code>main</code>                                                                                                                                    |
-| Tags at this commit | none                                                                                                                                                 |
-| Working tree        | clean                                                                                                                                                |
-| Remote              | <code>https://github.com/thorwhalen/ef</code>                                                                                                        |
+|                     |                                                                                                                                                  |
+|---------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|
+| Commit              | <a href="https://github.com/addaix/ef/commit/e2c2491876865d078de169aa040d568ac4bec029"><code>e2c2491876865d078de169aa040d568ac4bec029</code></a> |
+| Branch              | <code>main</code>                                                                                                                                |
+| Tags at this commit | none                                                                                                                                             |
+| Working tree        | clean                                                                                                                                            |
+| Remote              | <code>https://github.com/addaix/ef</code>                                                                                                        |
 
 ## Continuous integration
 
 |              |                                                                                            |
 |--------------|--------------------------------------------------------------------------------------------|
-| Repository   | <code>thorwhalen/ef</code>                                                                 |
-| Run          | <a href="https://github.com/thorwhalen/ef/actions/runs/40309450952">40309450952</a>        |
+| Repository   | <code>addaix/ef</code>                                                                     |
+| Run          | <a href="https://github.com/addaix/ef/actions/runs/44917952158">44917952158</a>            |
 | Ref          | <code>refs/heads/main</code>                                                               |
-| Event commit | <code>af507b21fed09f13f23827a2fc3ad1a42aeb0068</code> (in the history of the built commit) |
+| Event commit | <code>e2c2491876865d078de169aa040d568ac4bec029</code> (in the history of the built commit) |
 
 ## Tools
 
@@ -9559,7 +9557,7 @@ The documentation and the package may be misaligned:
 | epythet  | 0.2.22  |
 | Sphinx   | 9.1.1   |
 | docutils | 0.22.4  |
-| Python   | 3.12.15 |
+| Python   | 3.12.16 |
 
 ## Configuration as resolved
 
@@ -9575,13 +9573,13 @@ The documentation and the package may be misaligned:
 
 ## Package on PyPI
 
-Latest release: <a href="https://pypi.org/project/ef/0.1.28/">0.1.28</a>, newer than the documented version (0.1.27).
+Latest release: <a href="https://pypi.org/project/ef/0.1.28/">0.1.28</a>, the same as the documented version.
 
 ## Reproduce
 
 ```bash
-git clone https://github.com/thorwhalen/ef && cd ef
-git checkout af507b21fed09f13f23827a2fc3ad1a42aeb0068
+git clone https://github.com/addaix/ef && cd ef
+git checkout e2c2491876865d078de169aa040d568ac4bec029
 pip install "epythet==0.2.22"
 epythet quickstart . --ignore tests/ scrap/ examples/
 ```
@@ -9608,25 +9606,25 @@ Skills are folders holding a `SKILL.md` (the [Agent Skills](https://agentskills.
 Developer skill: the target architecture of the ef (Embedding Flow) package. Load at the start of any non-trivial task in the ef repository — refactoring, adding the Embedder/Segmenter facades, the Corpus abstraction, the ArtifactGraph indexing core, or the “ready search” surface. Covers the five-layer model, the core contracts, the light/heavy progressive-disclosure split, and the hard boundaries. Trigger on “work on ef”, “refactor ef”, “implement the embedder/segmenter/corpus/artifact graph”, “ef search”.
 
 ```bash
-gh skill install thorwhalen/ef ef-architecture --agent claude-code
+gh skill install addaix/ef ef-architecture --agent claude-code
 ```
 
-Source: [`skills/ef-architecture`](https://github.com/thorwhalen/ef/tree/HEAD/skills/ef-architecture).
+Source: [`skills/ef-architecture`](https://github.com/addaix/ef/tree/HEAD/skills/ef-architecture).
 
 ## Instruction files
 
 Files agents read before working in this repository.
 
-- [`.claude/CLAUDE.md`](https://github.com/thorwhalen/ef/tree/HEAD/.claude/CLAUDE.md): read by Claude Code
+- [`.claude/CLAUDE.md`](https://github.com/addaix/ef/tree/HEAD/.claude/CLAUDE.md): read by Claude Code
 
 ## Machine-readable documentation
 
 This site publishes the same documentation in forms that fit an agent’s context window:
 
-- [`llms.txt`](https://thorwhalen.github.io/ef/llms.txt): an index of every page with a one-line description ([llms.txt](https://llmstxt.org) format)
-- [`ef.md`](https://thorwhalen.github.io/ef/ef.md): the whole documentation as one Markdown file
+- [`llms.txt`](https://addaix.github.io/ef/llms.txt): an index of every page with a one-line description ([llms.txt](https://llmstxt.org) format)
+- [`ef.md`](https://addaix.github.io/ef/ef.md): the whole documentation as one Markdown file
 - `<page>.html.md`: a rendered Markdown twin of every page, advertised from each page’s `<head>` with `<link rel="alternate" type="text/markdown">`
-- [`objects.inv`](https://thorwhalen.github.io/ef/objects.inv): the Sphinx inventory: a symbol-to-URL index (`sphobjinv convert plain objects.inv -`)
+- [`objects.inv`](https://addaix.github.io/ef/objects.inv): the Sphinx inventory: a symbol-to-URL index (`sphobjinv convert plain objects.inv -`)
 
 
 # api.html.md

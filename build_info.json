@@ -1,39 +1,39 @@
 {
   "schema_version": 1,
-  "built_at": "2026-10-26T10:43:39Z",
+  "built_at": "2026-11-21T15:14:15Z",
   "package": {
     "name": "ef",
-    "version": "0.1.27",
+    "version": "0.1.28",
     "display_name": "ef",
     "source": "pyproject.toml"
   },
   "git": {
     "available": true,
-    "commit": "af507b21fed09f13f23827a2fc3ad1a42aeb0068",
-    "short_commit": "af507b2",
+    "commit": "e2c2491876865d078de169aa040d568ac4bec029",
+    "short_commit": "e2c2491",
     "branch": "main",
     "tags": [],
     "dirty": false,
-    "remote_url": "https://github.com/thorwhalen/ef",
-    "commit_url": "https://github.com/thorwhalen/ef/commit/af507b21fed09f13f23827a2fc3ad1a42aeb0068",
+    "remote_url": "https://github.com/addaix/ef",
+    "commit_url": "https://github.com/addaix/ef/commit/e2c2491876865d078de169aa040d568ac4bec029",
     "error": null
   },
   "ci": {
     "provider": "github",
-    "repository": "thorwhalen/ef",
-    "sha": "af507b21fed09f13f23827a2fc3ad1a42aeb0068",
+    "repository": "addaix/ef",
+    "sha": "e2c2491876865d078de169aa040d568ac4bec029",
     "sha_in_history": true,
     "ref": "refs/heads/main",
     "ref_name": "main",
-    "run_id": "40309450952",
-    "run_url": "https://github.com/thorwhalen/ef/actions/runs/40309450952",
+    "run_id": "44917952158",
+    "run_url": "https://github.com/addaix/ef/actions/runs/44917952158",
     "server_url": "https://github.com"
   },
   "tools": {
     "epythet": "0.2.22",
     "sphinx": "9.1.1",
     "docutils": "0.22.4",
-    "python": "3.12.15"
+    "python": "3.12.16"
   },
   "config": {
     "theme": "auto",
@@ -61,15 +61,13 @@
   "pypi": {
     "checked": true,
     "latest": "0.1.28",
-    "relation": "behind",
+    "relation": "same",
     "error": null
   },
-  "reproduce": "git clone https://github.com/thorwhalen/ef && cd ef\ngit checkout af507b21fed09f13f23827a2fc3ad1a42aeb0068\npip install \"epythet==0.2.22\"\nepythet quickstart . --ignore tests/ scrap/ examples/",
+  "reproduce": "git clone https://github.com/addaix/ef && cd ef\ngit checkout e2c2491876865d078de169aa040d568ac4bec029\npip install \"epythet==0.2.22\"\nepythet quickstart . --ignore tests/ scrap/ examples/",
   "warnings": [],
   "alignment": {
-    "aligned": false,
-    "notes": [
-      "The documented version (0.1.27) is behind the latest release on PyPI (0.1.28): `pip install ef` gives newer code than these docs describe."
-    ]
+    "aligned": true,
+    "notes": []
   }
 }
