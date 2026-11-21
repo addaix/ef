@@ -41,10 +41,10 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://thorwhalen.github.io/ef/"
-Repository = "https://github.com/thorwhalen/ef"
-Issues = "https://github.com/thorwhalen/ef/issues"
-Changelog = "https://github.com/thorwhalen/ef/blob/main/CHANGELOG.md"
+Homepage = "https://addaix.github.io/ef/"
+Repository = "https://github.com/addaix/ef"
+Issues = "https://github.com/addaix/ef/issues"
+Changelog = "https://github.com/addaix/ef/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 imbed = [
