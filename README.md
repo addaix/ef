@@ -148,6 +148,7 @@ The secondary "see the shape of the corpus" surface — `ef`'s visualization
 heritage, the backend an `app_ef` corpus map consumes. Three functions, each
 taking a corpus *or* a vector matrix:
 
+<!-- wads-docs: skip label_clusters needs an LLM via imbed, and segments from the RAG example above -->
 ```python
 coords = ef.project(index, dims=2)  # PCA -> UMAP, 2-D coordinates
 labels = ef.cluster(index, n_clusters=8)  # k-means (or method="hdbscan")
