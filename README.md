@@ -68,6 +68,7 @@ L5 Derive     project / cluster / label   ("explore the corpus")
 `ingest` and `SourceManager` take an `embedder=` — a string, a callable, a URL,
 or an `Embedder`. The `as_embedder` seam normalizes all of them:
 
+<!-- wads-docs: skip needs a corpus and embedder models or API keys (sentence-transformers, OpenAI, Cohere) -->
 ```python
 from ef import as_embedder, openai_embedder, sentence_transformers_embedder
 
@@ -100,6 +101,7 @@ control, use `SourceManager`. Configs that share a pipeline step **share its
 artifacts for free** — the indexing core is a content-addressed producer graph,
 so a second embedder or segmenter re-uses everything upstream of it.
 
+<!-- wads-docs: skip needs a corpus and an OpenAI key -->
 ```python
 from ef import SourceManager
 
@@ -112,6 +114,7 @@ index = manager.searchable()
 
 As sources change, an index drifts. `SourceManager` diagnoses and repairs it:
 
+<!-- wads-docs: skip fragment; continues the SourceManager example above -->
 ```python
 report = manager.diagnose()  # the four staleness conditions
 manager.refresh(mode="incremental")  # none | incremental | full | scoped_full
@@ -123,6 +126,7 @@ manager = SourceManager(corpus, store="my_vectors", auto_refresh=True)  # live
 `ef` hands a corpus to *your* RAG/agent framework and measures retrieval
 quality — it does not synthesize answers.
 
+<!-- wads-docs: skip fragment; qrels and queries are the user's data -->
 ```python
 segments = index.retrieve("how do neural networks learn?", limit=5)
 context = "\n\n".join(s["text"] for s in segments)  # feed context to your LLM
@@ -144,6 +148,7 @@ The secondary "see the shape of the corpus" surface — `ef`'s visualization
 heritage, the backend an `app_ef` corpus map consumes. Three functions, each
 taking a corpus *or* a vector matrix:
 
+<!-- wads-docs: skip label_clusters needs an LLM via imbed, and segments from the RAG example above -->
 ```python
 coords = ef.project(index, dims=2)  # PCA -> UMAP, 2-D coordinates
 labels = ef.cluster(index, n_clusters=8)  # k-means (or method="hdbscan")
