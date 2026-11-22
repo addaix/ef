@@ -50,21 +50,45 @@ def normalize_text(text: str) -> str:
     return text
 
 
+def _json_default(value: Any) -> Any:
+    """``json.dumps`` fallback: sets become lists sorted by each member's canonical JSON.
+
+    JSON calls it only for values it cannot serialise, so inputs without sets
+    hash byte-identically to before. Anything else falls back to ``str``.
+
+    >>> _json_default({3, 1, 2})
+    [1, 2, 3]
+    >>> _json_default(object).startswith("<class")
+    True
+    """
+    if isinstance(value, (set, frozenset)):
+        return sorted(value, key=canonical_json)
+    return str(value)
+
+
 def canonical_json(obj: Any) -> str:
     """Serialize ``obj`` to deterministic JSON: sorted keys, compact separators.
 
     Two mappings that are equal but were built in a different key order produce
     the *same* string — so they hash identically. Non-JSON values fall back to
     their ``str`` form, so the function never raises on exotic input (at the
-    cost of those values not round-tripping).
+    cost of those values not round-tripping). Sets and frozensets become lists
+    sorted by each member's canonical JSON, so they hash the same in every
+    process (``str`` of a set varies with ``PYTHONHASHSEED``).
 
     >>> canonical_json({'b': 1, 'a': 2})
     '{"a":2,"b":1}'
     >>> canonical_json({'a': 2, 'b': 1}) == canonical_json({'b': 1, 'a': 2})
     True
+    >>> canonical_json({'s': {'b', 'a'}}) == canonical_json({'s': frozenset('ab')})
+    True
     """
     return json.dumps(
-        obj, sort_keys=True, separators=(",", ":"), ensure_ascii=False, default=str
+        obj,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+        default=_json_default,
     )
 
 
