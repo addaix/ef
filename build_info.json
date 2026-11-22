@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "built_at": "2026-11-22T14:37:53Z",
+  "built_at": "2026-11-22T18:45:45Z",
   "package": {
     "name": "ef",
     "version": "0.1.29",
@@ -9,24 +9,24 @@
   },
   "git": {
     "available": true,
-    "commit": "a4f65b69bca08b05d737e9c1742c3534ac391de0",
-    "short_commit": "a4f65b6",
+    "commit": "b8a3998fc81383e2d6eae0080e4d8f3dc9125717",
+    "short_commit": "b8a3998",
     "branch": "main",
     "tags": [],
     "dirty": false,
     "remote_url": "https://github.com/addaix/ef",
-    "commit_url": "https://github.com/addaix/ef/commit/a4f65b69bca08b05d737e9c1742c3534ac391de0",
+    "commit_url": "https://github.com/addaix/ef/commit/b8a3998fc81383e2d6eae0080e4d8f3dc9125717",
     "error": null
   },
   "ci": {
     "provider": "github",
     "repository": "addaix/ef",
-    "sha": "a4f65b69bca08b05d737e9c1742c3534ac391de0",
+    "sha": "b8a3998fc81383e2d6eae0080e4d8f3dc9125717",
     "sha_in_history": true,
     "ref": "refs/heads/main",
     "ref_name": "main",
-    "run_id": "45033738321",
-    "run_url": "https://github.com/addaix/ef/actions/runs/45033738321",
+    "run_id": "45056760301",
+    "run_url": "https://github.com/addaix/ef/actions/runs/45056760301",
     "server_url": "https://github.com"
   },
   "tools": {
@@ -64,7 +64,7 @@
     "relation": "same",
     "error": null
   },
-  "reproduce": "git clone https://github.com/addaix/ef && cd ef\ngit checkout a4f65b69bca08b05d737e9c1742c3534ac391de0\npip install \"epythet==0.2.23\"\nepythet quickstart . --ignore tests/ scrap/ examples/",
+  "reproduce": "git clone https://github.com/addaix/ef && cd ef\ngit checkout b8a3998fc81383e2d6eae0080e4d8f3dc9125717\npip install \"epythet==0.2.23\"\nepythet quickstart . --ignore tests/ scrap/ examples/",
   "warnings": [],
   "alignment": {
     "aligned": true,
