@@ -1,4 +1,4 @@
-> built 2026-11-22 18:45 UTC from b8a3998 (main) · ef 0.1.29. Details: build_info.json
+> built 2026-11-22 20:18 UTC from f82e461 (main) · ef 0.1.29. Details: build_info.json
 
 # index.html.md
 
@@ -9530,7 +9530,7 @@ See the module docstring for a complete offline example.
 
 # About this build
 
-This documentation was built on **2026-11-22 18:45 UTC** from commit <a href="https://github.com/addaix/ef/commit/b8a3998fc81383e2d6eae0080e4d8f3dc9125717"><code>b8a3998</code></a> on branch <code>main</code>, for **ef 0.1.29** (from <code>pyproject.toml</code>).
+This documentation was built on **2026-11-22 20:18 UTC** from commit <a href="https://github.com/addaix/ef/commit/f82e4615e5eeb65eafe5b3ebc8780e86c3895c73"><code>f82e461</code></a> on branch <code>main</code>, for **ef 0.1.29** (from <code>pyproject.toml</code>).
 
 #### NOTE
 Nothing suggests a mismatch: the tree was clean at the commit above, and the documented version is the one on PyPI.
@@ -9539,7 +9539,7 @@ Nothing suggests a mismatch: the tree was clean at the commit above, and the doc
 
 |                     |                                                                                                                                                  |
 |---------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|
-| Commit              | <a href="https://github.com/addaix/ef/commit/b8a3998fc81383e2d6eae0080e4d8f3dc9125717"><code>b8a3998fc81383e2d6eae0080e4d8f3dc9125717</code></a> |
+| Commit              | <a href="https://github.com/addaix/ef/commit/f82e4615e5eeb65eafe5b3ebc8780e86c3895c73"><code>f82e4615e5eeb65eafe5b3ebc8780e86c3895c73</code></a> |
 | Branch              | <code>main</code>                                                                                                                                |
 | Tags at this commit | none                                                                                                                                             |
 | Working tree        | clean                                                                                                                                            |
@@ -9550,9 +9550,9 @@ Nothing suggests a mismatch: the tree was clean at the commit above, and the doc
 |              |                                                                                            |
 |--------------|--------------------------------------------------------------------------------------------|
 | Repository   | <code>addaix/ef</code>                                                                     |
-| Run          | <a href="https://github.com/addaix/ef/actions/runs/45056760301">45056760301</a>            |
+| Run          | <a href="https://github.com/addaix/ef/actions/runs/45065555541">45065555541</a>            |
 | Ref          | <code>refs/heads/main</code>                                                               |
-| Event commit | <code>b8a3998fc81383e2d6eae0080e4d8f3dc9125717</code> (in the history of the built commit) |
+| Event commit | <code>f82e4615e5eeb65eafe5b3ebc8780e86c3895c73</code> (in the history of the built commit) |
 
 ## Tools
 
@@ -9583,7 +9583,7 @@ Latest release: <a href="https://pypi.org/project/ef/0.1.29/">0.1.29</a>, the sa
 
 ```bash
 git clone https://github.com/addaix/ef && cd ef
-git checkout b8a3998fc81383e2d6eae0080e4d8f3dc9125717
+git checkout f82e4615e5eeb65eafe5b3ebc8780e86c3895c73
 pip install "epythet==0.2.23"
 epythet quickstart . --ignore tests/ scrap/ examples/
 ```

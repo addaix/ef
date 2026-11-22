@@ -441,7 +441,7 @@
 </span><span id="line-242">
 </span><span id="line-243">    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
 </span><span id="line-244">        <span class="bp">self</span><span class="p">,</span> <span class="n">doc_ids</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">vectors</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">query_embedder</span><span class="p">:</span> <span class="n">Any</span>
-</span><span id="line-245">    <span class="p">):</span>
+</span><span id="line-245">    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="line-246">        <span class="n">vectors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">vectors</span><span class="p">)</span>
 </span><span id="line-247">        <span class="k">if</span> <span class="n">vectors</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">vectors</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">doc_ids</span><span class="p">):</span>
 </span><span id="line-248">            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
