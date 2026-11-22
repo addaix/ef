@@ -142,6 +142,29 @@ rag = evaluate_rag(samples)  # deterministic lexical metrics
 adds a two-stage reranking pass. `as_ragas_dataset` bridges to Ragas for
 LLM-judged metrics.
 
+### Reranking: bring any reranker
+
+A reranker is any callable `(query, segments) -> one score per segment`, so a stronger model is a one-line change. The default `cross_encoder_reranker()` uses a sentence-transformers cross-encoder; pass `model_name=` for another, for example `"BAAI/bge-reranker-base"`, which scored best of the cross-encoders in a SciFact comparison against the default (nDCG@10 0.706 versus 0.678, with the same install).
+
+<!-- wads-docs: skip fragment; needs sentence-transformers models and the user's own corpus -->
+```python
+from ef import with_reranker, cross_encoder_reranker
+
+retrieve = with_reranker(index.retrieve, cross_encoder_reranker("BAAI/bge-reranker-base"))
+segments = retrieve("how do neural networks learn?", limit=5)
+```
+
+For a hosted reranker (Cohere, Jina) or a library such as [rerankers](https://github.com/AnswerDotAI/rerankers), wrap it in a few lines; no dependency is added to `ef`:
+
+<!-- wads-docs: skip fragment; `rr` is the user's own reranker object -->
+```python
+def my_reranker(query, segments):
+    texts = [segment["text"] for segment in segments]
+    ranked = rr.rank(query, texts, doc_ids=list(range(len(texts))))  # rr: a rerankers.Reranker
+    scores = {r.document.doc_id: r.score for r in ranked.results}
+    return [scores[i] for i in range(len(texts))]  # scores back in input order
+```
+
 ## Exploring a corpus (layer L5)
 
 The secondary "see the shape of the corpus" surface — `ef`'s visualization
