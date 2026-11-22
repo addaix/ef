@@ -1,4 +1,4 @@
-> built 2026-11-22 20:18 UTC from f82e461 (main) · ef 0.1.29. Details: build_info.json
+> built 2026-11-22 22:03 UTC from cd193f0 (main) · ef 0.1.29. Details: build_info.json
 
 # index.html.md
 
@@ -74,6 +74,7 @@ L5 Derive     project / cluster / label   ("explore the corpus")
 `ingest` and `SourceManager` take an `embedder=` — a string, a callable, a URL,
 or an `Embedder`. The `as_embedder` seam normalizes all of them:
 
+<!-- wads-docs: skip needs a corpus and embedder models or API keys (sentence-transformers, OpenAI, Cohere) -->
 ```python
 from ef import as_embedder, openai_embedder, sentence_transformers_embedder
 
@@ -106,6 +107,7 @@ control, use `SourceManager`. Configs that share a pipeline step **share its
 artifacts for free** — the indexing core is a content-addressed producer graph,
 so a second embedder or segmenter re-uses everything upstream of it.
 
+<!-- wads-docs: skip needs a corpus and an OpenAI key -->
 ```python
 from ef import SourceManager
 
@@ -118,6 +120,7 @@ index = manager.searchable()
 
 As sources change, an index drifts. `SourceManager` diagnoses and repairs it:
 
+<!-- wads-docs: skip fragment; continues the SourceManager example above -->
 ```python
 report = manager.diagnose()  # the four staleness conditions
 manager.refresh(mode="incremental")  # none | incremental | full | scoped_full
@@ -129,6 +132,7 @@ manager = SourceManager(corpus, store="my_vectors", auto_refresh=True)  # live
 `ef` hands a corpus to *your* RAG/agent framework and measures retrieval
 quality — it does not synthesize answers.
 
+<!-- wads-docs: skip fragment; qrels and queries are the user's data -->
 ```python
 segments = index.retrieve("how do neural networks learn?", limit=5)
 context = "\n\n".join(s["text"] for s in segments)  # feed context to your LLM
@@ -150,6 +154,7 @@ The secondary “see the shape of the corpus” surface — `ef`’s visualizati
 heritage, the backend an `app_ef` corpus map consumes. Three functions, each
 taking a corpus *or* a vector matrix:
 
+<!-- wads-docs: skip label_clusters needs an LLM via imbed, and segments from the RAG example above -->
 ```python
 coords = ef.project(index, dims=2)  # PCA -> UMAP, 2-D coordinates
 labels = ef.cluster(index, n_clusters=8)  # k-means (or method="hdbscan")
@@ -9530,7 +9535,7 @@ See the module docstring for a complete offline example.
 
 # About this build
 
-This documentation was built on **2026-11-22 20:18 UTC** from commit <a href="https://github.com/addaix/ef/commit/f82e4615e5eeb65eafe5b3ebc8780e86c3895c73"><code>f82e461</code></a> on branch <code>main</code>, for **ef 0.1.29** (from <code>pyproject.toml</code>).
+This documentation was built on **2026-11-22 22:03 UTC** from commit <a href="https://github.com/addaix/ef/commit/cd193f055d05ec861af6b6b7df52461047c54bc7"><code>cd193f0</code></a> on branch <code>main</code>, for **ef 0.1.29** (from <code>pyproject.toml</code>).
 
 #### NOTE
 Nothing suggests a mismatch: the tree was clean at the commit above, and the documented version is the one on PyPI.
@@ -9539,7 +9544,7 @@ Nothing suggests a mismatch: the tree was clean at the commit above, and the doc
 
 |                     |                                                                                                                                                  |
 |---------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|
-| Commit              | <a href="https://github.com/addaix/ef/commit/f82e4615e5eeb65eafe5b3ebc8780e86c3895c73"><code>f82e4615e5eeb65eafe5b3ebc8780e86c3895c73</code></a> |
+| Commit              | <a href="https://github.com/addaix/ef/commit/cd193f055d05ec861af6b6b7df52461047c54bc7"><code>cd193f055d05ec861af6b6b7df52461047c54bc7</code></a> |
 | Branch              | <code>main</code>                                                                                                                                |
 | Tags at this commit | none                                                                                                                                             |
 | Working tree        | clean                                                                                                                                            |
@@ -9550,9 +9555,9 @@ Nothing suggests a mismatch: the tree was clean at the commit above, and the doc
 |              |                                                                                            |
 |--------------|--------------------------------------------------------------------------------------------|
 | Repository   | <code>addaix/ef</code>                                                                     |
-| Run          | <a href="https://github.com/addaix/ef/actions/runs/45065555541">45065555541</a>            |
+| Run          | <a href="https://github.com/addaix/ef/actions/runs/45075418216">45075418216</a>            |
 | Ref          | <code>refs/heads/main</code>                                                               |
-| Event commit | <code>f82e4615e5eeb65eafe5b3ebc8780e86c3895c73</code> (in the history of the built commit) |
+| Event commit | <code>cd193f055d05ec861af6b6b7df52461047c54bc7</code> (in the history of the built commit) |
 
 ## Tools
 
@@ -9583,7 +9588,7 @@ Latest release: <a href="https://pypi.org/project/ef/0.1.29/">0.1.29</a>, the sa
 
 ```bash
 git clone https://github.com/addaix/ef && cd ef
-git checkout f82e4615e5eeb65eafe5b3ebc8780e86c3895c73
+git checkout cd193f055d05ec861af6b6b7df52461047c54bc7
 pip install "epythet==0.2.23"
 epythet quickstart . --ignore tests/ scrap/ examples/
 ```

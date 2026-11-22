@@ -183,6 +183,7 @@ no answer synthesis. “Bring your own LLM, your own agent framework, your own U
 <h2>Choosing an embedder<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#choosing-an-embedder" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#choosing-an-embedder'">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">ingest</span></code> and <code class="docutils literal notranslate"><span class="pre">SourceManager</span></code> take an <code class="docutils literal notranslate"><span class="pre">embedder=</span></code> — a string, a callable, a URL,
 or an <code class="docutils literal notranslate"><span class="pre">Embedder</span></code>. The <code class="docutils literal notranslate"><span class="pre">as_embedder</span></code> seam normalizes all of them:</p>
+
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="kn">from</span><span class="w"> </span><span class="nn">ef</span><span class="w"> </span><span class="kn">import</span> <span class="n">as_embedder</span><span class="p">,</span> <span class="n">openai_embedder</span><span class="p">,</span> <span class="n">sentence_transformers_embedder</span>
 </span><span id="line-2">
 </span><span id="line-3"><span class="n">index</span> <span class="o">=</span> <span class="n">ef</span><span class="o">.</span><span class="n">ingest</span><span class="p">(</span><span class="n">corpus</span><span class="p">,</span> <span class="n">embedder</span><span class="o">=</span><span class="n">sentence_transformers_embedder</span><span class="p">(</span><span class="s2">"all-MiniLM-L6-v2"</span><span class="p">))</span>
@@ -211,6 +212,7 @@ little metadata. Composition wrappers — <code class="docutils literal notransl
 control, use <code class="docutils literal notranslate"><span class="pre">SourceManager</span></code>. Configs that share a pipeline step <strong>share its
 artifacts for free</strong> — the indexing core is a content-addressed producer graph,
 so a second embedder or segmenter re-uses everything upstream of it.</p>
+
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="kn">from</span><span class="w"> </span><span class="nn">ef</span><span class="w"> </span><span class="kn">import</span> <span class="n">SourceManager</span>
 </span><span id="line-2">
 </span><span id="line-3"><span class="n">manager</span> <span class="o">=</span> <span class="n">SourceManager</span><span class="p">(</span><span class="n">corpus</span><span class="p">,</span> <span class="n">store</span><span class="o">=</span><span class="s2">"my_vectors"</span><span class="p">)</span>
@@ -222,6 +224,7 @@ so a second embedder or segmenter re-uses everything upstream of it.</p>
 <section id="keeping-an-index-fresh">
 <h2>Keeping an index fresh<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#keeping-an-index-fresh" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#keeping-an-index-fresh'">¶</a></h2>
 <p>As sources change, an index drifts. <code class="docutils literal notranslate"><span class="pre">SourceManager</span></code> diagnoses and repairs it:</p>
+
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="n">report</span> <span class="o">=</span> <span class="n">manager</span><span class="o">.</span><span class="n">diagnose</span><span class="p">()</span>  <span class="c1"># the four staleness conditions</span>
 </span><span id="line-2"><span class="n">manager</span><span class="o">.</span><span class="n">refresh</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">"incremental"</span><span class="p">)</span>  <span class="c1"># none | incremental | full | scoped_full</span>
 </span><span id="line-3"><span class="n">manager</span> <span class="o">=</span> <span class="n">SourceManager</span><span class="p">(</span><span class="n">corpus</span><span class="p">,</span> <span class="n">store</span><span class="o">=</span><span class="s2">"my_vectors"</span><span class="p">,</span> <span class="n">auto_refresh</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># live</span>
@@ -232,6 +235,7 @@ so a second embedder or segmenter re-uses everything upstream of it.</p>
 <span id="rag-plug-in--evaluation"></span><h2>RAG plug-in &amp; evaluation<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#rag-plug-in-evaluation" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#rag-plug-in-evaluation'">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">ef</span></code> hands a corpus to <em>your</em> RAG/agent framework and measures retrieval
 quality — it does not synthesize answers.</p>
+
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="n">segments</span> <span class="o">=</span> <span class="n">index</span><span class="o">.</span><span class="n">retrieve</span><span class="p">(</span><span class="s2">"how do neural networks learn?"</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 </span><span id="line-2"><span class="n">context</span> <span class="o">=</span> <span class="s2">"</span><span class="se">\n\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="s2">"text"</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">segments</span><span class="p">)</span>  <span class="c1"># feed context to your LLM</span>
 </span><span id="line-3">
@@ -251,6 +255,7 @@ LLM-judged metrics.</p>
 <p>The secondary “see the shape of the corpus” surface — <code class="docutils literal notranslate"><span class="pre">ef</span></code>’s visualization
 heritage, the backend an <code class="docutils literal notranslate"><span class="pre">app_ef</span></code> corpus map consumes. Three functions, each
 taking a corpus <em>or</em> a vector matrix:</p>
+
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="n">coords</span> <span class="o">=</span> <span class="n">ef</span><span class="o">.</span><span class="n">project</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># PCA -&gt; UMAP, 2-D coordinates</span>
 </span><span id="line-2"><span class="n">labels</span> <span class="o">=</span> <span class="n">ef</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">n_clusters</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>  <span class="c1"># k-means (or method="hdbscan")</span>
 </span><span id="line-3"><span class="n">titles</span> <span class="o">=</span> <span class="n">ef</span><span class="o">.</span><span class="n">label_clusters</span><span class="p">(</span><span class="n">segments</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span>  <span class="c1"># LLM-titled clusters (via imbed)</span>
@@ -303,7 +308,7 @@ there.</p>
 
 </section>
 </section>
-<p class="epythet-provenance" style="font-size:.8em;opacity:.65;margin-top:2.5em;text-align:right">built 2026-11-22 20:18 UTC from <a href="https://github.com/addaix/ef/commit/f82e4615e5eeb65eafe5b3ebc8780e86c3895c73">f82e461</a> (main) · ef 0.1.29 · <a href="about-this-build.html">about this build</a></p>
+<p class="epythet-provenance" style="font-size:.8em;opacity:.65;margin-top:2.5em;text-align:right">built 2026-11-22 22:03 UTC from <a href="https://github.com/addaix/ef/commit/cd193f055d05ec861af6b6b7df52461047c54bc7">cd193f0</a> (main) · ef 0.1.29 · <a href="about-this-build.html">about this build</a></p>
 </div></div><aside class="hidden text-sm xl:block" id="right-sidebar">
 <div class="sticky top-16 -mt-10 max-h-[calc(100vh-5rem)] h-full overflow-y-auto pt-6 space-y-2"><p class="font-medium">On this page</p>
 <ul>
