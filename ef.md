@@ -1,4 +1,4 @@
-> built 2026-11-21 15:14 UTC from e2c2491 (main) · ef 0.1.28. Details: build_info.json
+> built 2026-11-22 14:15 UTC from 23270a2 (main) · ef 0.1.28. Details: build_info.json
 
 # index.html.md
 
@@ -3517,12 +3517,16 @@ Serialize `obj` to deterministic JSON: sorted keys, compact separators.
 Two mappings that are equal but were built in a different key order produce
 the *same* string — so they hash identically. Non-JSON values fall back to
 their `str` form, so the function never raises on exotic input (at the
-cost of those values not round-tripping).
+cost of those values not round-tripping). Sets and frozensets become lists
+sorted by each member’s canonical JSON, so they hash the same in every
+process (`str` of a set varies with `PYTHONHASHSEED`).
 
 ```pycon
 >>> canonical_json({'b': 1, 'a': 2})
 '{"a":2,"b":1}'
 >>> canonical_json({'a': 2, 'b': 1}) == canonical_json({'b': 1, 'a': 2})
+True
+>>> canonical_json({'s': {'b', 'a'}}) == canonical_json({'s': frozenset('ab')})
 True
 ```
 
@@ -9526,16 +9530,18 @@ See the module docstring for a complete offline example.
 
 # About this build
 
-This documentation was built on **2026-11-21 15:14 UTC** from commit <a href="https://github.com/addaix/ef/commit/e2c2491876865d078de169aa040d568ac4bec029"><code>e2c2491</code></a> on branch <code>main</code>, for **ef 0.1.28** (from <code>pyproject.toml</code>).
+This documentation was built on **2026-11-22 14:15 UTC** from commit <a href="https://github.com/addaix/ef/commit/23270a27233b0b8ea9311470fa6bcf33951f7afb"><code>23270a2</code></a> on branch <code>main</code>, for **ef 0.1.28** (from <code>pyproject.toml</code>).
 
-#### NOTE
-Nothing suggests a mismatch: the tree was clean at the commit above, and the documented version is the one on PyPI.
+#### WARNING
+The documentation and the package may be misaligned:
+
+- The documented version (0.1.28) is behind the latest release on PyPI (0.1.29): `pip install ef` gives newer code than these docs describe.
 
 ## Source
 
 |                     |                                                                                                                                                  |
 |---------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|
-| Commit              | <a href="https://github.com/addaix/ef/commit/e2c2491876865d078de169aa040d568ac4bec029"><code>e2c2491876865d078de169aa040d568ac4bec029</code></a> |
+| Commit              | <a href="https://github.com/addaix/ef/commit/23270a27233b0b8ea9311470fa6bcf33951f7afb"><code>23270a27233b0b8ea9311470fa6bcf33951f7afb</code></a> |
 | Branch              | <code>main</code>                                                                                                                                |
 | Tags at this commit | none                                                                                                                                             |
 | Working tree        | clean                                                                                                                                            |
@@ -9546,15 +9552,15 @@ Nothing suggests a mismatch: the tree was clean at the commit above, and the doc
 |              |                                                                                            |
 |--------------|--------------------------------------------------------------------------------------------|
 | Repository   | <code>addaix/ef</code>                                                                     |
-| Run          | <a href="https://github.com/addaix/ef/actions/runs/44917952158">44917952158</a>            |
+| Run          | <a href="https://github.com/addaix/ef/actions/runs/45031745993">45031745993</a>            |
 | Ref          | <code>refs/heads/main</code>                                                               |
-| Event commit | <code>e2c2491876865d078de169aa040d568ac4bec029</code> (in the history of the built commit) |
+| Event commit | <code>23270a27233b0b8ea9311470fa6bcf33951f7afb</code> (in the history of the built commit) |
 
 ## Tools
 
 |          |         |
 |----------|---------|
-| epythet  | 0.2.22  |
+| epythet  | 0.2.23  |
 | Sphinx   | 9.1.1   |
 | docutils | 0.22.4  |
 | Python   | 3.12.16 |
@@ -9573,14 +9579,14 @@ Nothing suggests a mismatch: the tree was clean at the commit above, and the doc
 
 ## Package on PyPI
 
-Latest release: <a href="https://pypi.org/project/ef/0.1.28/">0.1.28</a>, the same as the documented version.
+Latest release: <a href="https://pypi.org/project/ef/0.1.29/">0.1.29</a>, newer than the documented version (0.1.28).
 
 ## Reproduce
 
 ```bash
 git clone https://github.com/addaix/ef && cd ef
-git checkout e2c2491876865d078de169aa040d568ac4bec029
-pip install "epythet==0.2.22"
+git checkout 23270a27233b0b8ea9311470fa6bcf33951f7afb
+pip install "epythet==0.2.23"
 epythet quickstart . --ignore tests/ scrap/ examples/
 ```
 

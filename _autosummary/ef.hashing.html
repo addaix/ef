@@ -170,11 +170,15 @@ for that normalization; every other <code class="docutils literal notranslate"><
 <p>Two mappings that are equal but were built in a different key order produce
 the <em>same</em> string — so they hash identically. Non-JSON values fall back to
 their <code class="docutils literal notranslate"><span class="pre">str</span></code> form, so the function never raises on exotic input (at the
-cost of those values not round-tripping).</p>
+cost of those values not round-tripping). Sets and frozensets become lists
+sorted by each member’s canonical JSON, so they hash the same in every
+process (<code class="docutils literal notranslate"><span class="pre">str</span></code> of a set varies with <code class="docutils literal notranslate"><span class="pre">PYTHONHASHSEED</span></code>).</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="gp">&gt;&gt;&gt; </span><span class="n">canonical_json</span><span class="p">({</span><span class="s1">'b'</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">'a'</span><span class="p">:</span> <span class="mi">2</span><span class="p">})</span>
 </span><span id="line-2"><span class="go">'{"a":2,"b":1}'</span>
 </span><span id="line-3"><span class="gp">&gt;&gt;&gt; </span><span class="n">canonical_json</span><span class="p">({</span><span class="s1">'a'</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">'b'</span><span class="p">:</span> <span class="mi">1</span><span class="p">})</span> <span class="o">==</span> <span class="n">canonical_json</span><span class="p">({</span><span class="s1">'b'</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">'a'</span><span class="p">:</span> <span class="mi">2</span><span class="p">})</span>
 </span><span id="line-4"><span class="go">True</span>
+</span><span id="line-5"><span class="gp">&gt;&gt;&gt; </span><span class="n">canonical_json</span><span class="p">({</span><span class="s1">'s'</span><span class="p">:</span> <span class="p">{</span><span class="s1">'b'</span><span class="p">,</span> <span class="s1">'a'</span><span class="p">}})</span> <span class="o">==</span> <span class="n">canonical_json</span><span class="p">({</span><span class="s1">'s'</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">(</span><span class="s1">'ab'</span><span class="p">)})</span>
+</span><span id="line-6"><span class="go">True</span>
 </span></code></pre></div>
 </div>
 <dl class="field-list simple">

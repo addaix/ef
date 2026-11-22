@@ -33,12 +33,16 @@ Serialize `obj` to deterministic JSON: sorted keys, compact separators.
 Two mappings that are equal but were built in a different key order produce
 the *same* string — so they hash identically. Non-JSON values fall back to
 their `str` form, so the function never raises on exotic input (at the
-cost of those values not round-tripping).
+cost of those values not round-tripping). Sets and frozensets become lists
+sorted by each member’s canonical JSON, so they hash the same in every
+process (`str` of a set varies with `PYTHONHASHSEED`).
 
 ```pycon
 >>> canonical_json({'b': 1, 'a': 2})
 '{"a":2,"b":1}'
 >>> canonical_json({'a': 2, 'b': 1}) == canonical_json({'b': 1, 'a': 2})
+True
+>>> canonical_json({'s': {'b', 'a'}}) == canonical_json({'s': frozenset('ab')})
 True
 ```
 

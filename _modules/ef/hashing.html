@@ -235,40 +235,64 @@
 
 </span><span id="line-51">
 </span><span id="line-52">
+</span><span id="line-53"><span class="k">def</span><span class="w"> </span><span class="nf">_json_default</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+</span><span id="line-54"><span class="w">    </span><span class="sd">"""``json.dumps`` fallback: sets become lists sorted by each member's canonical JSON.</span>
+</span><span id="line-55">
+</span><span id="line-56"><span class="sd">    JSON calls it only for values it cannot serialise, so inputs without sets</span>
+</span><span id="line-57"><span class="sd">    hash byte-identically to before. Anything else falls back to ``str``.</span>
+</span><span id="line-58">
+</span><span id="line-59"><span class="sd">    &gt;&gt;&gt; _json_default({3, 1, 2})</span>
+</span><span id="line-60"><span class="sd">    [1, 2, 3]</span>
+</span><span id="line-61"><span class="sd">    &gt;&gt;&gt; _json_default(object).startswith("&lt;class")</span>
+</span><span id="line-62"><span class="sd">    True</span>
+</span><span id="line-63"><span class="sd">    """</span>
+</span><span id="line-64">    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">set</span><span class="p">,</span> <span class="nb">frozenset</span><span class="p">)):</span>
+</span><span id="line-65">        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">canonical_json</span><span class="p">)</span>
+</span><span id="line-66">    <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+</span><span id="line-67">
+</span><span id="line-68">
 <div class="viewcode-block" id="canonical_json">
 <a class="viewcode-back" href="../../_autosummary/ef.hashing.html#ef.hashing.canonical_json">[docs]</a>
-</span><span id="line-53"><span class="k">def</span><span class="w"> </span><span class="nf">canonical_json</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-</span><span id="line-54"><span class="w">    </span><span class="sd">"""Serialize ``obj`` to deterministic JSON: sorted keys, compact separators.</span>
-</span><span id="line-55">
-</span><span id="line-56"><span class="sd">    Two mappings that are equal but were built in a different key order produce</span>
-</span><span id="line-57"><span class="sd">    the *same* string — so they hash identically. Non-JSON values fall back to</span>
-</span><span id="line-58"><span class="sd">    their ``str`` form, so the function never raises on exotic input (at the</span>
-</span><span id="line-59"><span class="sd">    cost of those values not round-tripping).</span>
-</span><span id="line-60">
-</span><span id="line-61"><span class="sd">    &gt;&gt;&gt; canonical_json({'b': 1, 'a': 2})</span>
-</span><span id="line-62"><span class="sd">    '{"a":2,"b":1}'</span>
-</span><span id="line-63"><span class="sd">    &gt;&gt;&gt; canonical_json({'a': 2, 'b': 1}) == canonical_json({'b': 1, 'a': 2})</span>
-</span><span id="line-64"><span class="sd">    True</span>
-</span><span id="line-65"><span class="sd">    """</span>
-</span><span id="line-66">    <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span>
-</span><span id="line-67">        <span class="n">obj</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">separators</span><span class="o">=</span><span class="p">(</span><span class="s2">","</span><span class="p">,</span> <span class="s2">":"</span><span class="p">),</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="nb">str</span>
-</span><span id="line-68">    <span class="p">)</span></div>
+</span><span id="line-69"><span class="k">def</span><span class="w"> </span><span class="nf">canonical_json</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="line-70"><span class="w">    </span><span class="sd">"""Serialize ``obj`` to deterministic JSON: sorted keys, compact separators.</span>
+</span><span id="line-71">
+</span><span id="line-72"><span class="sd">    Two mappings that are equal but were built in a different key order produce</span>
+</span><span id="line-73"><span class="sd">    the *same* string — so they hash identically. Non-JSON values fall back to</span>
+</span><span id="line-74"><span class="sd">    their ``str`` form, so the function never raises on exotic input (at the</span>
+</span><span id="line-75"><span class="sd">    cost of those values not round-tripping). Sets and frozensets become lists</span>
+</span><span id="line-76"><span class="sd">    sorted by each member's canonical JSON, so they hash the same in every</span>
+</span><span id="line-77"><span class="sd">    process (``str`` of a set varies with ``PYTHONHASHSEED``).</span>
+</span><span id="line-78">
+</span><span id="line-79"><span class="sd">    &gt;&gt;&gt; canonical_json({'b': 1, 'a': 2})</span>
+</span><span id="line-80"><span class="sd">    '{"a":2,"b":1}'</span>
+</span><span id="line-81"><span class="sd">    &gt;&gt;&gt; canonical_json({'a': 2, 'b': 1}) == canonical_json({'b': 1, 'a': 2})</span>
+</span><span id="line-82"><span class="sd">    True</span>
+</span><span id="line-83"><span class="sd">    &gt;&gt;&gt; canonical_json({'s': {'b', 'a'}}) == canonical_json({'s': frozenset('ab')})</span>
+</span><span id="line-84"><span class="sd">    True</span>
+</span><span id="line-85"><span class="sd">    """</span>
+</span><span id="line-86">    <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span>
+</span><span id="line-87">        <span class="n">obj</span><span class="p">,</span>
+</span><span id="line-88">        <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="line-89">        <span class="n">separators</span><span class="o">=</span><span class="p">(</span><span class="s2">","</span><span class="p">,</span> <span class="s2">":"</span><span class="p">),</span>
+</span><span id="line-90">        <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+</span><span id="line-91">        <span class="n">default</span><span class="o">=</span><span class="n">_json_default</span><span class="p">,</span>
+</span><span id="line-92">    <span class="p">)</span></div>
 
-</span><span id="line-69">
-</span><span id="line-70">
+</span><span id="line-93">
+</span><span id="line-94">
 <div class="viewcode-block" id="sha256_hex">
 <a class="viewcode-back" href="../../_autosummary/ef.hashing.html#ef.hashing.sha256_hex">[docs]</a>
-</span><span id="line-71"><span class="k">def</span><span class="w"> </span><span class="nf">sha256_hex</span><span class="p">(</span><span class="n">payload</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-</span><span id="line-72"><span class="w">    </span><span class="sd">"""Return the ``SHA-256`` hex digest of ``payload`` (``str`` is UTF-8 encoded).</span>
-</span><span id="line-73">
-</span><span id="line-74"><span class="sd">    &gt;&gt;&gt; sha256_hex('')</span>
-</span><span id="line-75"><span class="sd">    'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'</span>
-</span><span id="line-76"><span class="sd">    &gt;&gt;&gt; sha256_hex('abc') == sha256_hex(b'abc')</span>
-</span><span id="line-77"><span class="sd">    True</span>
-</span><span id="line-78"><span class="sd">    """</span>
-</span><span id="line-79">    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">payload</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-</span><span id="line-80">        <span class="n">payload</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">"utf-8"</span><span class="p">)</span>
-</span><span id="line-81">    <span class="k">return</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span></div>
+</span><span id="line-95"><span class="k">def</span><span class="w"> </span><span class="nf">sha256_hex</span><span class="p">(</span><span class="n">payload</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="line-96"><span class="w">    </span><span class="sd">"""Return the ``SHA-256`` hex digest of ``payload`` (``str`` is UTF-8 encoded).</span>
+</span><span id="line-97">
+</span><span id="line-98"><span class="sd">    &gt;&gt;&gt; sha256_hex('')</span>
+</span><span id="line-99"><span class="sd">    'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'</span>
+</span><span id="line-100"><span class="sd">    &gt;&gt;&gt; sha256_hex('abc') == sha256_hex(b'abc')</span>
+</span><span id="line-101"><span class="sd">    True</span>
+</span><span id="line-102"><span class="sd">    """</span>
+</span><span id="line-103">    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">payload</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+</span><span id="line-104">        <span class="n">payload</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">"utf-8"</span><span class="p">)</span>
+</span><span id="line-105">    <span class="k">return</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span></div>
 
 </span></code></pre></div>
     </div></div>
