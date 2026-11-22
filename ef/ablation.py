@@ -242,7 +242,7 @@ class MaxPoolRetriever:
 
     def __init__(
         self, doc_ids: Sequence[str], vectors: np.ndarray, query_embedder: Any
-    ):
+    ) -> None:
         vectors = np.asarray(vectors)
         if vectors.ndim != 2 or vectors.shape[0] != len(doc_ids):
             raise ValueError(
