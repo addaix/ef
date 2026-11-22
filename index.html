@@ -249,6 +249,26 @@ quality — it does not synthesize answers.</p>
 <code class="docutils literal notranslate"><span class="pre">metadata["source"]</span></code>); <code class="docutils literal notranslate"><span class="pre">search()</span></code> returns scored <code class="docutils literal notranslate"><span class="pre">SearchHit</span></code>s. <code class="docutils literal notranslate"><span class="pre">with_reranker</span></code>
 adds a two-stage reranking pass. <code class="docutils literal notranslate"><span class="pre">as_ragas_dataset</span></code> bridges to Ragas for
 LLM-judged metrics.</p>
+<section id="reranking-bring-any-reranker">
+<h3>Reranking: bring any reranker<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#reranking-bring-any-reranker" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#reranking-bring-any-reranker'">¶</a></h3>
+<p>A reranker is any callable <code class="docutils literal notranslate"><span class="pre">(query,</span> <span class="pre">segments)</span> <span class="pre">-&gt;</span> <span class="pre">one</span> <span class="pre">score</span> <span class="pre">per</span> <span class="pre">segment</span></code>, so a stronger model is a one-line change. The default <code class="docutils literal notranslate"><span class="pre">cross_encoder_reranker()</span></code> uses a sentence-transformers cross-encoder; pass <code class="docutils literal notranslate"><span class="pre">model_name=</span></code> for another, for example <code class="docutils literal notranslate"><span class="pre">"BAAI/bge-reranker-base"</span></code>, which scored best of the cross-encoders in a SciFact comparison against the default (nDCG@10 0.706 versus 0.678, with the same install).</p>
+
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="kn">from</span><span class="w"> </span><span class="nn">ef</span><span class="w"> </span><span class="kn">import</span> <span class="n">with_reranker</span><span class="p">,</span> <span class="n">cross_encoder_reranker</span>
+</span><span id="line-2">
+</span><span id="line-3"><span class="n">retrieve</span> <span class="o">=</span> <span class="n">with_reranker</span><span class="p">(</span><span class="n">index</span><span class="o">.</span><span class="n">retrieve</span><span class="p">,</span> <span class="n">cross_encoder_reranker</span><span class="p">(</span><span class="s2">"BAAI/bge-reranker-base"</span><span class="p">))</span>
+</span><span id="line-4"><span class="n">segments</span> <span class="o">=</span> <span class="n">retrieve</span><span class="p">(</span><span class="s2">"how do neural networks learn?"</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+</span></code></pre></div>
+</div>
+<p>For a hosted reranker (Cohere, Jina) or a library such as <a class="reference external" href="https://github.com/AnswerDotAI/rerankers" rel="nofollow noopener">rerankers<svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a>, wrap it in a few lines; no dependency is added to <code class="docutils literal notranslate"><span class="pre">ef</span></code>:</p>
+
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="k">def</span><span class="w"> </span><span class="nf">my_reranker</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">segments</span><span class="p">):</span>
+</span><span id="line-2">    <span class="n">texts</span> <span class="o">=</span> <span class="p">[</span><span class="n">segment</span><span class="p">[</span><span class="s2">"text"</span><span class="p">]</span> <span class="k">for</span> <span class="n">segment</span> <span class="ow">in</span> <span class="n">segments</span><span class="p">]</span>
+</span><span id="line-3">    <span class="n">ranked</span> <span class="o">=</span> <span class="n">rr</span><span class="o">.</span><span class="n">rank</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">texts</span><span class="p">,</span> <span class="n">doc_ids</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">texts</span><span class="p">))))</span>  <span class="c1"># rr: a rerankers.Reranker</span>
+</span><span id="line-4">    <span class="n">scores</span> <span class="o">=</span> <span class="p">{</span><span class="n">r</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">doc_id</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">score</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">ranked</span><span class="o">.</span><span class="n">results</span><span class="p">}</span>
+</span><span id="line-5">    <span class="k">return</span> <span class="p">[</span><span class="n">scores</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">texts</span><span class="p">))]</span>  <span class="c1"># scores back in input order</span>
+</span></code></pre></div>
+</div>
+</section>
 </section>
 <section id="exploring-a-corpus-layer-l5">
 <h2>Exploring a corpus (layer L5)<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#exploring-a-corpus-layer-l5" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#exploring-a-corpus-layer-l5'">¶</a></h2>
@@ -308,7 +328,7 @@ there.</p>
 
 </section>
 </section>
-<p class="epythet-provenance" style="font-size:.8em;opacity:.65;margin-top:2.5em;text-align:right">built 2026-11-22 22:03 UTC from <a href="https://github.com/addaix/ef/commit/cd193f055d05ec861af6b6b7df52461047c54bc7">cd193f0</a> (main) · ef 0.1.29 · <a href="about-this-build.html">about this build</a></p>
+<p class="epythet-provenance" style="font-size:.8em;opacity:.65;margin-top:2.5em;text-align:right">built 2026-11-22 23:31 UTC from <a href="https://github.com/addaix/ef/commit/c9bf92e9fec564d7475efc5cd18d77e7610bff91">c9bf92e</a> (main) · ef 0.1.29 · <a href="about-this-build.html">about this build</a></p>
 </div></div><aside class="hidden text-sm xl:block" id="right-sidebar">
 <div class="sticky top-16 -mt-10 max-h-[calc(100vh-5rem)] h-full overflow-y-auto pt-6 space-y-2"><p class="font-medium">On this page</p>
 <ul>
@@ -317,7 +337,10 @@ there.</p>
 <li><a :data-current="activeSection === '#choosing-an-embedder'" class="reference internal" href="#choosing-an-embedder">Choosing an embedder</a></li>
 <li><a :data-current="activeSection === '#the-heavy-case-sourcemanager'" class="reference internal" href="#the-heavy-case-sourcemanager">The heavy case — <code class="docutils literal notranslate"><span class="pre">SourceManager</span></code></a></li>
 <li><a :data-current="activeSection === '#keeping-an-index-fresh'" class="reference internal" href="#keeping-an-index-fresh">Keeping an index fresh</a></li>
-<li><a :data-current="activeSection === '#rag-plug-in-evaluation'" class="reference internal" href="#rag-plug-in-evaluation">RAG plug-in &amp; evaluation</a></li>
+<li><a :data-current="activeSection === '#rag-plug-in-evaluation'" class="reference internal" href="#rag-plug-in-evaluation">RAG plug-in &amp; evaluation</a><ul>
+<li><a :data-current="activeSection === '#reranking-bring-any-reranker'" class="reference internal" href="#reranking-bring-any-reranker">Reranking: bring any reranker</a></li>
+</ul>
+</li>
 <li><a :data-current="activeSection === '#exploring-a-corpus-layer-l5'" class="reference internal" href="#exploring-a-corpus-layer-l5">Exploring a corpus (layer L5)</a></li>
 <li><a :data-current="activeSection === '#what-ef-is-not'" class="reference internal" href="#what-ef-is-not">What <code class="docutils literal notranslate"><span class="pre">ef</span></code> is <em>not</em></a></li>
 <li><a :data-current="activeSection === '#links'" class="reference internal" href="#links">Links</a></li>

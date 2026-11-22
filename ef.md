@@ -1,4 +1,4 @@
-> built 2026-11-22 22:03 UTC from cd193f0 (main) · ef 0.1.29. Details: build_info.json
+> built 2026-11-22 23:31 UTC from c9bf92e (main) · ef 0.1.29. Details: build_info.json
 
 # index.html.md
 
@@ -147,6 +147,29 @@ rag = evaluate_rag(samples)  # deterministic lexical metrics
 `metadata["source"]`); `search()` returns scored `SearchHit`s. `with_reranker`
 adds a two-stage reranking pass. `as_ragas_dataset` bridges to Ragas for
 LLM-judged metrics.
+
+### Reranking: bring any reranker
+
+A reranker is any callable `(query, segments) -> one score per segment`, so a stronger model is a one-line change. The default `cross_encoder_reranker()` uses a sentence-transformers cross-encoder; pass `model_name=` for another, for example `"BAAI/bge-reranker-base"`, which scored best of the cross-encoders in a SciFact comparison against the default (nDCG@10 0.706 versus 0.678, with the same install).
+
+<!-- wads-docs: skip fragment; needs sentence-transformers models and the user's own corpus -->
+```python
+from ef import with_reranker, cross_encoder_reranker
+
+retrieve = with_reranker(index.retrieve, cross_encoder_reranker("BAAI/bge-reranker-base"))
+segments = retrieve("how do neural networks learn?", limit=5)
+```
+
+For a hosted reranker (Cohere, Jina) or a library such as [rerankers](https://github.com/AnswerDotAI/rerankers), wrap it in a few lines; no dependency is added to `ef`:
+
+<!-- wads-docs: skip fragment; \`rr\` is the user's own reranker object -->
+```python
+def my_reranker(query, segments):
+    texts = [segment["text"] for segment in segments]
+    ranked = rr.rank(query, texts, doc_ids=list(range(len(texts))))  # rr: a rerankers.Reranker
+    scores = {r.document.doc_id: r.score for r in ranked.results}
+    return [scores[i] for i in range(len(texts))]  # scores back in input order
+```
 
 ## Exploring a corpus (layer L5)
 
@@ -9535,7 +9558,7 @@ See the module docstring for a complete offline example.
 
 # About this build
 
-This documentation was built on **2026-11-22 22:03 UTC** from commit <a href="https://github.com/addaix/ef/commit/cd193f055d05ec861af6b6b7df52461047c54bc7"><code>cd193f0</code></a> on branch <code>main</code>, for **ef 0.1.29** (from <code>pyproject.toml</code>).
+This documentation was built on **2026-11-22 23:31 UTC** from commit <a href="https://github.com/addaix/ef/commit/c9bf92e9fec564d7475efc5cd18d77e7610bff91"><code>c9bf92e</code></a> on branch <code>main</code>, for **ef 0.1.29** (from <code>pyproject.toml</code>).
 
 #### NOTE
 Nothing suggests a mismatch: the tree was clean at the commit above, and the documented version is the one on PyPI.
@@ -9544,7 +9567,7 @@ Nothing suggests a mismatch: the tree was clean at the commit above, and the doc
 
 |                     |                                                                                                                                                  |
 |---------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|
-| Commit              | <a href="https://github.com/addaix/ef/commit/cd193f055d05ec861af6b6b7df52461047c54bc7"><code>cd193f055d05ec861af6b6b7df52461047c54bc7</code></a> |
+| Commit              | <a href="https://github.com/addaix/ef/commit/c9bf92e9fec564d7475efc5cd18d77e7610bff91"><code>c9bf92e9fec564d7475efc5cd18d77e7610bff91</code></a> |
 | Branch              | <code>main</code>                                                                                                                                |
 | Tags at this commit | none                                                                                                                                             |
 | Working tree        | clean                                                                                                                                            |
@@ -9555,9 +9578,9 @@ Nothing suggests a mismatch: the tree was clean at the commit above, and the doc
 |              |                                                                                            |
 |--------------|--------------------------------------------------------------------------------------------|
 | Repository   | <code>addaix/ef</code>                                                                     |
-| Run          | <a href="https://github.com/addaix/ef/actions/runs/45075418216">45075418216</a>            |
+| Run          | <a href="https://github.com/addaix/ef/actions/runs/45083544330">45083544330</a>            |
 | Ref          | <code>refs/heads/main</code>                                                               |
-| Event commit | <code>cd193f055d05ec861af6b6b7df52461047c54bc7</code> (in the history of the built commit) |
+| Event commit | <code>c9bf92e9fec564d7475efc5cd18d77e7610bff91</code> (in the history of the built commit) |
 
 ## Tools
 
@@ -9588,7 +9611,7 @@ Latest release: <a href="https://pypi.org/project/ef/0.1.29/">0.1.29</a>, the sa
 
 ```bash
 git clone https://github.com/addaix/ef && cd ef
-git checkout cd193f055d05ec861af6b6b7df52461047c54bc7
+git checkout c9bf92e9fec564d7475efc5cd18d77e7610bff91
 pip install "epythet==0.2.23"
 epythet quickstart . --ignore tests/ scrap/ examples/
 ```
