@@ -150,7 +150,9 @@ A reranker is any callable `(query, segments) -> one score per segment`, so a st
 ```python
 from ef import with_reranker, cross_encoder_reranker
 
-retrieve = with_reranker(index.retrieve, cross_encoder_reranker("BAAI/bge-reranker-base"))
+retrieve = with_reranker(
+    index.retrieve, cross_encoder_reranker("BAAI/bge-reranker-base")
+)
 segments = retrieve("how do neural networks learn?", limit=5)
 ```
 
@@ -160,7 +162,9 @@ For a hosted reranker (Cohere, Jina) or a library such as [rerankers](https://gi
 ```python
 def my_reranker(query, segments):
     texts = [segment["text"] for segment in segments]
-    ranked = rr.rank(query, texts, doc_ids=list(range(len(texts))))  # rr: a rerankers.Reranker
+    ranked = rr.rank(
+        query, texts, doc_ids=list(range(len(texts)))
+    )  # rr: a rerankers.Reranker
     scores = {r.document.doc_id: r.score for r in ranked.results}
     return [scores[i] for i in range(len(texts))]  # scores back in input order
 ```
