@@ -1,0 +1,121 @@
+# CI for the ef-rust package (rust/): lints, Rust unit tests, cargo deny, and the
+# differential tests that compare HashingEmbedder(backend="rust") with the frozen
+# Python reference bit for bit. Linux only; the wheel matrix lives in rust-release.yml.
+# ef itself is pure Python and is validated by ci.yml; this runs only when Rust-related
+# files change. Adapted from equate's rust-ci.yml (the fleet's first port).
+name: rust-ci
+on:
+  push:
+    branches: [main]
+    paths:
+      - "rust/**"
+      - "ef/embedders.py"
+      - "ef/_reference.py"
+      - "tests/test_differential.py"
+      - "tests/test_hashing_embedder.py"
+      - "benchmarks/**"
+      - ".github/workflows/rust-ci.yml"
+  pull_request:
+    paths:
+      - "rust/**"
+      - "ef/embedders.py"
+      - "ef/_reference.py"
+      - "tests/test_differential.py"
+      - "tests/test_hashing_embedder.py"
+      - "benchmarks/**"
+      - ".github/workflows/rust-ci.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rust-ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_BUILD_WARNINGS: deny # warnings fail the build without invalidating the cache
+  RUST_BACKTRACE: "1"
+
+defaults:
+  run:
+    working-directory: rust
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: "1.99"
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: rust
+          save-if: ${{ github.ref_name == github.event.repository.default_branch }}
+      # pyo3's build script needs a Python interpreter to configure against
+      - uses: actions/setup-python@v5
+        id: py
+        with:
+          python-version: "3.12"
+      - run: cargo fmt --all --check
+      - run: cargo clippy --workspace --all-targets --locked
+        env:
+          PYO3_PYTHON: ${{ steps.py.outputs.python-path }}
+
+  test:
+    needs: lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.10", "3.13"] # the abi3 floor and a recent CPython
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: "1.99"
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: rust
+          save-if: ${{ github.ref_name == github.event.repository.default_branch }}
+      - uses: actions/setup-python@v5
+        id: py
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Rust unit tests (core crate, no libpython)
+        run: cargo test -p ef-hashing-core --locked
+      - name: Build the release wheel and install it, then ef and the test extras
+        working-directory: .
+        env:
+          PYO3_PYTHON: ${{ steps.py.outputs.python-path }}
+        run: |
+          python -m pip install --upgrade pip maturin
+          python -m pip install ./rust
+          python -m pip install -e ".[testing]" hypothesis
+      - name: Rust backend tests
+        working-directory: .
+        run: python -m pytest tests/test_differential.py tests/test_hashing_embedder.py -q
+      - name: Differential tests, thorough Hypothesis profile
+        if: matrix.python == '3.13'
+        working-directory: .
+        timeout-minutes: 20
+        env:
+          HYPOTHESIS_PROFILE: thorough
+        run: python -m pytest tests/test_differential.py -q
+
+  deny:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        checks: [advisories, "bans licenses sources"]
+    continue-on-error: ${{ matrix.checks == 'advisories' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: EmbarkStudios/cargo-deny-action@v2
+        with:
+          manifest-path: rust/Cargo.toml
+          command: check ${{ matrix.checks }}

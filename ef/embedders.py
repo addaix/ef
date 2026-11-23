@@ -51,7 +51,9 @@ from __future__ import annotations
 import hashlib
 import math
 import re
+import sys
 from collections import Counter
+from functools import lru_cache
 from dataclasses import dataclass, field
 from typing import (
     Any,
@@ -60,6 +62,7 @@ from typing import (
     Iterator,
     Literal,
     Protocol,
+    get_args,
     Sequence,
     runtime_checkable,
 )
@@ -347,6 +350,47 @@ def _word_ngrams(text: str, ngram_range: tuple[int, int]) -> Iterator[str]:
                 yield " ".join(words[i : i + n])
 
 
+#: The backends :class:`HashingEmbedder` can compute its vectors with. Both give
+#: bit-identical vectors, so the backend is not part of ``model_id``.
+HashingBackend = Literal["python", "rust"]
+_HASHING_BACKENDS: tuple[str, ...] = get_args(HashingBackend)
+
+
+@lru_cache(maxsize=1)
+def _word_char_ranges() -> tuple[tuple[int, int], ...]:
+    """The half-open code-point ranges ``_WORD_RE`` matches, in this interpreter.
+
+    The native backend takes them instead of its own notion of a word character, so its
+    tokenizer agrees with ``re`` (and with this Python's Unicode version) by construction.
+    Computed once, on the first ``backend="rust"`` call.
+
+    >>> ranges = _word_char_ranges()
+    >>> (ord('0'), ord('9') + 1) in ranges, (ord('_'), ord('_') + 1) in ranges
+    (True, True)
+    """
+    every_code_point = "".join(map(chr, range(sys.maxunicode + 1)))
+    return tuple(m.span() for m in _WORD_RE.finditer(every_code_point))
+
+
+def _require_ef_rust():
+    """Import the optional native kernel (the ``ef-rust`` wheel), or say how to get it."""
+    if int(np.__version__.split(".")[0]) < 2:
+        raise ImportError(
+            "HashingEmbedder(backend='rust') needs numpy >= 2: it reproduces numpy 2's "
+            "float32 rounding (NEP 50), which numpy 1 does not use, so the two backends "
+            f"would differ in the last bit. Found numpy {np.__version__}."
+        )
+    try:
+        import ef_rust
+    except ImportError as exc:
+        raise ImportError(
+            "HashingEmbedder(backend='rust') needs the native kernel, which is not "
+            "installed. Install the ef-rust wheel (the 'rust' extra of ef) or build it "
+            "from the repository's rust/ folder, or use backend='python'."
+        ) from exc
+    return ef_rust
+
+
 def _hash_bucket(token: str, dim: int) -> tuple[int, float]:
     """Hash ``token`` to a ``(bucket, sign)`` pair — the feature-hashing trick.
 
@@ -411,6 +455,9 @@ class HashingEmbedder(BaseEmbedder):
             sensitivity at no real cost.
         sublinear_tf: Weight a token by ``1 + log(count)`` rather than its raw
             ``count``, damping a word repeated many times in one text.
+        backend: ``"python"`` (the default, numpy only) or ``"rust"``, the native
+            kernel from the optional ``ef-rust`` wheel (``pip install 'ef[rust]'``).
+            Both produce bit-identical vectors, so ``model_id`` does not depend on it.
 
     >>> e = HashingEmbedder()
     >>> e.model_id
@@ -430,6 +477,9 @@ class HashingEmbedder(BaseEmbedder):
 
     normalized = True
     honored_input_types: tuple[InputType, ...] = ()  # a lexical, task-agnostic model
+    # class-level defaults keep instances pickled before the backend seam loadable
+    backend: HashingBackend = "python"
+    _native_kernel: tuple[tuple, Any] | None = None
 
     def __init__(
         self,
@@ -437,7 +487,12 @@ class HashingEmbedder(BaseEmbedder):
         dim: int = _HASHING_DEFAULT_DIM,
         ngram_range: tuple[int, int] = (1, 2),
         sublinear_tf: bool = True,
+        backend: HashingBackend = "python",
     ) -> None:
+        if backend not in _HASHING_BACKENDS:
+            raise ValueError(
+                f"backend must be one of {_HASHING_BACKENDS}, got {backend!r}"
+            )
         n_min, n_max = ngram_range
         if n_min < 1 or n_max < n_min:
             raise ValueError(
@@ -448,7 +503,15 @@ class HashingEmbedder(BaseEmbedder):
         self.dim = int(dim)
         self.ngram_range = (int(n_min), int(n_max))
         self.sublinear_tf = bool(sublinear_tf)
+        if backend == "rust":
+            _require_ef_rust()  # fail here, not deep inside the first ingest
+        self.backend = backend
         self.model_id = _hashing_model_id(self.dim, self.ngram_range, self.sublinear_tf)
+        self._native_kernel = None  # (config, kernel), built on the first rust call
+
+    def __getstate__(self) -> dict:
+        # the native kernel is a process-local handle: rebuild it after unpickling
+        return {**self.__dict__, "_native_kernel": None}
 
     def __call__(
         self,
@@ -457,10 +520,56 @@ class HashingEmbedder(BaseEmbedder):
         input_type: InputType | None = None,
         **backend: Any,
     ) -> np.ndarray:
+        if "backend" in backend:
+            raise TypeError(
+                "HashingEmbedder takes backend= at construction, not per call: "
+                f"use HashingEmbedder(backend={backend['backend']!r})"
+            )
         texts = list(texts)
+        if self.backend == "rust":
+            return self._call_native(texts)
         out = np.zeros((len(texts), self.dim), dtype=np.float32)
         for row, text in enumerate(texts):
             self._vectorize_into(text, out[row])
+        return out
+
+    def _call_native(self, texts: list) -> np.ndarray:
+        """``__call__`` through the native kernel, bit-identical to the Python path.
+
+        Python keeps what defines the semantics: ``str.lower`` and the L2 norm. The
+        kernel tokenizes, counts, hashes and accumulates. Items it does not take (not
+        an exact ``str``, or a lone surrogate) come back in ``skipped`` and are computed
+        here by the Python path, which also raises its own errors for them.
+        """
+        # numpy allocates, exactly as the Python path does: same size errors, same
+        # allocator (BLAS results can depend on alignment), same array flags
+        out = np.zeros((len(texts), self.dim), dtype=np.float32)
+        config = (self.dim, self.ngram_range, self.sublinear_tf)
+        cached = self._native_kernel
+        if cached is not None and cached[0] == config:
+            kernel = cached[1]
+        else:  # first call, or the configuration was changed on the instance
+            n_min, n_max = self.ngram_range
+            kernel = _require_ef_rust().HashingKernel(
+                _word_char_ranges(),
+                dim=self.dim,
+                # past sys.maxsize no text has that many words: same (empty) result
+                ngram_min=min(n_min, sys.maxsize),
+                ngram_max=min(n_max, sys.maxsize),
+                sublinear_tf=self.sublinear_tf,
+            )
+            self._native_kernel = (config, kernel)
+        # exact str only: a subclass (np.str_ included) may override lower()
+        lowered = [text.lower() if type(text) is str else None for text in texts]
+        skipped = set(kernel.accumulate_into(lowered, out))
+        for row, text in enumerate(texts):
+            if row in skipped:
+                self._vectorize_into(text, out[row])
+                continue
+            vector = out[row]
+            norm = float(np.linalg.norm(vector))
+            if norm > 0.0:
+                vector /= norm
         return out
 
     def _vectorize_into(self, text: str, row: np.ndarray) -> None:
