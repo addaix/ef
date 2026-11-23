@@ -349,6 +349,15 @@ def test_native_output_is_a_numpy_owned_array():
     assert out.flags.owndata and out.flags.c_contiguous and out.flags.writeable
 
 
+def test_kernel_follows_configuration_changes():
+    """Changing a setting on the instance must not leave a stale native kernel."""
+    e = HashingEmbedder(backend="rust")
+    e(["warm the kernel"])
+    e.sublinear_tf, e.dim = False, 64
+    expected = reference_vectors(["a a b c c c"], dim=64, sublinear_tf=False)
+    assert same_array(e(["a a b c c c"]), expected)
+
+
 def test_backend_is_not_in_model_id():
     assert HashingEmbedder(backend="rust").model_id == HashingEmbedder().model_id
 

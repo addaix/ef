@@ -23,8 +23,8 @@ use std::cmp::Ordering;
 use std::hash::BuildHasher;
 
 use blake2b_simd::Params;
+use foldhash::fast::RandomState;
 use hashbrown::HashTable;
-use rustc_hash::FxBuildHasher;
 
 /// One past the largest Unicode scalar value.
 const CODE_POINT_LIMIT: u32 = 0x11_0000;
@@ -141,9 +141,12 @@ struct Entry {
 
 /// Reusable buffers for [`HashingKernel::accumulate`]; one per thread, reused across
 /// texts. Distinct tokens are stored once in a byte arena and found through a hash
-/// table of entry indices, so counting allocates nothing per token.
+/// table of entry indices, so counting allocates nothing per token. The table's hasher
+/// is randomly seeded (as Python's `Counter` is, through `str` hashing), so nobody can
+/// precompute n-grams that collide and make counting quadratic.
 #[derive(Debug, Default)]
 pub struct Scratch {
+    hasher: RandomState,
     words: Vec<(usize, usize)>,
     table: HashTable<usize>,
     entries: Vec<Entry>,
@@ -221,6 +224,7 @@ impl HashingKernel {
             });
         }
         let Scratch {
+            hasher,
             words,
             table,
             entries,
@@ -231,7 +235,6 @@ impl HashingKernel {
         table.clear();
         entries.clear();
         arena.clear();
-        let fx = FxBuildHasher;
 
         self.split_words(text, words);
         let ngram_max = self.config.ngram_max.min(words.len());
@@ -245,7 +248,7 @@ impl HashingKernel {
                     key.push_str(text.get(start..end).unwrap_or_default());
                 }
                 let bytes = key.as_bytes();
-                let hash = fx.hash_one(bytes);
+                let hash = hasher.hash_one(bytes);
                 let found = table
                     .find(hash, |&i| entry_bytes(arena, entries.get(i)) == bytes)
                     .copied();
@@ -261,7 +264,7 @@ impl HashingKernel {
                         count: 1,
                     });
                     table.insert_unique(hash, entries.len() - 1, |&i| {
-                        fx.hash_one(entry_bytes(arena, entries.get(i)))
+                        hasher.hash_one(entry_bytes(arena, entries.get(i)))
                     });
                 }
             }

@@ -190,14 +190,30 @@ def test_unknown_backend_is_rejected():
         HashingEmbedder(backend="cython")
 
 
-def test_rust_backend_without_the_wheel_says_how_to_get_it(monkeypatch):
+def test_rust_backend_without_the_wheel_fails_at_construction(monkeypatch):
     import sys
 
     monkeypatch.setitem(sys.modules, "ef_rust", None)  # makes `import ef_rust` fail
-    e = HashingEmbedder(backend="rust")  # constructing is free: the kernel loads lazily
-    assert e.model_id == HashingEmbedder().model_id
-    with pytest.raises(ImportError, match=r"ef\[rust\]"):
-        e(["hello"])
+    with pytest.raises(ImportError, match="ef-rust"):
+        HashingEmbedder(backend="rust")
+
+
+def test_backend_is_not_a_call_argument():
+    with pytest.raises(TypeError, match="at construction"):
+        HashingEmbedder()(["hello"], backend="rust")
+
+
+def test_instances_pickled_before_the_backend_seam_still_load():
+    import pickle
+
+    e = HashingEmbedder()
+    state = dict(e.__dict__)
+    state.pop("backend")
+    state.pop("_native_kernel")
+    old = HashingEmbedder.__new__(HashingEmbedder)
+    old.__dict__.update(state)
+    clone = pickle.loads(pickle.dumps(old))
+    np.testing.assert_array_equal(clone(["hello world"]), e(["hello world"]))
 
 
 @pytest.mark.parametrize(

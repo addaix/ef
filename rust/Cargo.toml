@@ -19,7 +19,7 @@ pyo3 = { version = "0.30", features = ["abi3-py310"] }
 numpy = "0.30"
 thiserror = "2"
 blake2b_simd = "1"
-rustc-hash = "2"
+foldhash = "0.2"
 hashbrown = { version = "0.17", default-features = false }
 
 [workspace.lints.rust]

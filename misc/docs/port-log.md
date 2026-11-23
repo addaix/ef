@@ -16,7 +16,7 @@ State of the native backend of `HashingEmbedder`, kept where the next session fi
 |---|---|---|
 | `str.lower` | Python | Its Unicode semantics (final sigma, `İ`) are the specification; calling it costs ~0.35 µs per text. |
 | word splitting (`\w+`) | Rust, with Python's table | The facade passes the code-point ranges `re`'s `\w` matches in the running interpreter (748 ranges, computed once in ~0.2 s). The tokenizer cannot drift from `re` or from Python's Unicode version. |
-| n-grams, counting in first-occurrence order | Rust | Distinct tokens go in a byte arena behind a `hashbrown::HashTable`, so nothing is allocated per token. |
+| n-grams, counting in first-occurrence order | Rust | Distinct tokens go in a byte arena behind a `hashbrown::HashTable`, so nothing is allocated per token. The table's hasher is `foldhash`'s randomly seeded one, so nobody can precompute colliding n-grams (Python's `Counter` is protected the same way, by seeded `str` hashing). |
 | 8-byte BLAKE2b, bucket, sign | Rust (`blake2b_simd`) | The v1 algorithm fixes the hash. It is the floor: ~165 ns per distinct token on this Mac. |
 | signed weight, float32 accumulation | Rust | `f64` weight, rounded to `f32`, then an `f32` add, in token order: NumPy's NEP 50 rule for `float32 += float`. |
 | L2 normalisation | Python | `np.linalg.norm` goes through BLAS `sdot`; keeping it in Python keeps the same bytes on each machine. |
@@ -77,12 +77,26 @@ What is left in the native path, for 1000 short lines: the kernel takes 7.8 ms, 
 
 The reviewer found no text-level divergence after 3,000 random cases (combining marks, case traps, NUL, line separators, astral characters, dim 1 to 2\*\*16), a 400k-word text, non-`str` items, surrogates, generators, pickling and input mutation.
 
+### Second review (`rust-reviewer`)
+
+| Severity | Finding | Fix |
+|---|---|---|
+| major | the counting table used unseeded `FxHash`: crafted documents could make counting quadratic | seeded `foldhash::fast::RandomState` (benchmark unchanged, 5.2–6.1×) |
+| major | the cached kernel ignored later changes to `dim`/`ngram_range`/`sublinear_tf` on the instance | the cache is keyed on the configuration; `test_kernel_follows_configuration_changes` |
+| major | the `ef[rust]` extra names a package that is not on PyPI yet | publish `ef-rust` before ef is released with the extra (a checklist item in the PR) |
+| major | the oracle never runs in CI | `.github/workflows/rust-ci.yml` (fmt, clippy, cargo test, the differential and thorough runs, cargo deny), adapted from equate's |
+| minor | instances pickled before the seam failed to load | class-level defaults for `backend` and `_native_kernel`; a test |
+| minor | `e(texts, backend="rust")` was silently swallowed by `**backend` | `TypeError` that points at the constructor; a test |
+| minor | `backend="rust"` without the wheel failed only on the first call | the import is checked at construction; a test |
+| minor | `_HASHING_BACKENDS` repeated the `Literal` | `get_args(HashingBackend)` |
+| minor | `cargo deny` never run | the `deny` job in `rust-ci.yml` |
+
 ## Checks
 
 `cargo test -p ef-hashing-core` (7 tests), `cargo clippy --workspace --all-targets` with warnings denied, `cargo fmt --check` and `mypy.stubtest ef_rust._core` are all clean. Not run here: `cargo deny` (not installed on this Mac), free-threaded Python, and Linux golden vectors (the BLAS question below).
 
 ## Open
 
-- **Release path.** The wads native-wheel matrix ([i2mint/wads#166](https://github.com/i2mint/wads/issues/166)) and the second package released from a subfolder ([i2mint/wads#220](https://github.com/i2mint/wads/issues/220)) are both open. Until they land, `ef-rust` needs a repo-local maturin workflow or a manual release.
+- **Release path.** `.github/workflows/rust-release.yml` (from equate) builds the abi3 wheels for 5 targets and an sdist, and publishes from a tag `ef-rust-vX.Y.Z` through PyPI trusted publishing. Before the first tag, the owner configures a trusted publisher for the PyPI project `ef-rust`. The wads native-wheel matrix ([i2mint/wads#166](https://github.com/i2mint/wads/issues/166)) and the second package released from a subfolder ([i2mint/wads#220](https://github.com/i2mint/wads/issues/220)) are both open; when they land, this repo-local workflow can give way to them.
 - **BLAS.** The docstring promises identical bytes across machines, but the norm goes through BLAS (Accelerate on the Mac, OpenBLAS on Linux). That holds for both backends alike: compare golden vectors from the Mac and Linux before promising it.
 - **CI.** ef's CI does not build Rust, so the differential tests skip there. A Linux job running `maturin develop --release` and then `pytest tests/test_differential.py` would close that gap.

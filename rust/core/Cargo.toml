@@ -11,7 +11,7 @@ repository = "https://github.com/addaix/ef"
 [dependencies]
 thiserror = { workspace = true }
 blake2b_simd = { workspace = true }
-rustc-hash = { workspace = true }
+foldhash = { workspace = true }
 hashbrown = { workspace = true }
 
 [lints]

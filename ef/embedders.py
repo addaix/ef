@@ -62,6 +62,7 @@ from typing import (
     Iterator,
     Literal,
     Protocol,
+    get_args,
     Sequence,
     runtime_checkable,
 )
@@ -352,7 +353,7 @@ def _word_ngrams(text: str, ngram_range: tuple[int, int]) -> Iterator[str]:
 #: The backends :class:`HashingEmbedder` can compute its vectors with. Both give
 #: bit-identical vectors, so the backend is not part of ``model_id``.
 HashingBackend = Literal["python", "rust"]
-_HASHING_BACKENDS: tuple[str, ...] = ("python", "rust")
+_HASHING_BACKENDS: tuple[str, ...] = get_args(HashingBackend)
 
 
 @lru_cache(maxsize=1)
@@ -384,8 +385,8 @@ def _require_ef_rust():
     except ImportError as exc:
         raise ImportError(
             "HashingEmbedder(backend='rust') needs the native kernel, which is not "
-            "installed. Install it with: pip install 'ef[rust]' (or build it from the "
-            "repository's rust/ folder), or use backend='python'."
+            "installed. Install the ef-rust wheel (the 'rust' extra of ef) or build it "
+            "from the repository's rust/ folder, or use backend='python'."
         ) from exc
     return ef_rust
 
@@ -476,6 +477,9 @@ class HashingEmbedder(BaseEmbedder):
 
     normalized = True
     honored_input_types: tuple[InputType, ...] = ()  # a lexical, task-agnostic model
+    # class-level defaults keep instances pickled before the backend seam loadable
+    backend: HashingBackend = "python"
+    _native_kernel: tuple[tuple, Any] | None = None
 
     def __init__(
         self,
@@ -499,9 +503,11 @@ class HashingEmbedder(BaseEmbedder):
         self.dim = int(dim)
         self.ngram_range = (int(n_min), int(n_max))
         self.sublinear_tf = bool(sublinear_tf)
+        if backend == "rust":
+            _require_ef_rust()  # fail here, not deep inside the first ingest
         self.backend = backend
         self.model_id = _hashing_model_id(self.dim, self.ngram_range, self.sublinear_tf)
-        self._native_kernel = None  # built on the first backend="rust" call
+        self._native_kernel = None  # (config, kernel), built on the first rust call
 
     def __getstate__(self) -> dict:
         # the native kernel is a process-local handle: rebuild it after unpickling
@@ -514,6 +520,11 @@ class HashingEmbedder(BaseEmbedder):
         input_type: InputType | None = None,
         **backend: Any,
     ) -> np.ndarray:
+        if "backend" in backend:
+            raise TypeError(
+                "HashingEmbedder takes backend= at construction, not per call: "
+                f"use HashingEmbedder(backend={backend['backend']!r})"
+            )
         texts = list(texts)
         if self.backend == "rust":
             return self._call_native(texts)
@@ -533,8 +544,11 @@ class HashingEmbedder(BaseEmbedder):
         # numpy allocates, exactly as the Python path does: same size errors, same
         # allocator (BLAS results can depend on alignment), same array flags
         out = np.zeros((len(texts), self.dim), dtype=np.float32)
-        kernel = self._native_kernel
-        if kernel is None:
+        config = (self.dim, self.ngram_range, self.sublinear_tf)
+        cached = self._native_kernel
+        if cached is not None and cached[0] == config:
+            kernel = cached[1]
+        else:  # first call, or the configuration was changed on the instance
             n_min, n_max = self.ngram_range
             kernel = _require_ef_rust().HashingKernel(
                 _word_char_ranges(),
@@ -544,7 +558,7 @@ class HashingEmbedder(BaseEmbedder):
                 ngram_max=min(n_max, sys.maxsize),
                 sublinear_tf=self.sublinear_tf,
             )
-            self._native_kernel = kernel
+            self._native_kernel = (config, kernel)
         # exact str only: a subclass (np.str_ included) may override lower()
         lowered = [text.lower() if type(text) is str else None for text in texts]
         skipped = set(kernel.accumulate_into(lowered, out))
