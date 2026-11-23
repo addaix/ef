@@ -174,3 +174,51 @@ def test_as_embedder_forwards_kwargs():
     assert isinstance(e, HashingEmbedder)
     assert e.dim == 64
     assert e.model_id == "hashing:v1@64"
+
+
+# ---------------------------------------------------------------------------
+# the backend seam (the native kernel itself: tests/test_differential.py)
+# ---------------------------------------------------------------------------
+
+
+def test_default_backend_is_python():
+    assert HashingEmbedder().backend == "python"
+
+
+def test_unknown_backend_is_rejected():
+    with pytest.raises(ValueError, match="backend must be one of"):
+        HashingEmbedder(backend="cython")
+
+
+def test_rust_backend_without_the_wheel_says_how_to_get_it(monkeypatch):
+    import sys
+
+    monkeypatch.setitem(sys.modules, "ef_rust", None)  # makes `import ef_rust` fail
+    e = HashingEmbedder(backend="rust")  # constructing is free: the kernel loads lazily
+    assert e.model_id == HashingEmbedder().model_id
+    with pytest.raises(ImportError, match=r"ef\[rust\]"):
+        e(["hello"])
+
+
+@pytest.mark.parametrize(
+    "config",
+    [{}, {"dim": 7, "ngram_range": (1, 3), "sublinear_tf": False}, {"dim": 3}],
+)
+def test_python_backend_equals_the_frozen_reference(config):
+    """The default path must not drift from ``ef/_reference.py``, the native oracle."""
+    from ef import _reference
+
+    texts = [
+        "The quick brown fox",
+        "hello hello world",
+        "",
+        "\u03a3\u0391\u03a3 caf\u00e9 na\u00efve \u0130stanbul",
+        " ".join(f"w{i}" for i in range(12) for _ in range(i % 7 + 2)),
+    ]
+    reference = _reference.hashing_vectors(
+        texts,
+        dim=config.get("dim", 512),
+        ngram_range=config.get("ngram_range", (1, 2)),
+        sublinear_tf=config.get("sublinear_tf", True),
+    )
+    assert HashingEmbedder(**config)(texts).tobytes() == reference.tobytes()

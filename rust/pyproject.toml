@@ -1,0 +1,43 @@
+[build-system]
+requires = ["maturin>=1.16,<2"]
+build-backend = "maturin"
+
+[project]
+name = "ef-rust"
+version = "0.1.0"                     # SSOT for this wheel's version (the crates stay 0.0.0)
+description = "Native (Rust) kernel for ef's HashingEmbedder, selected with backend='rust'"
+readme = "README.md"
+requires-python = ">=3.10"            # matches the abi3-py310 floor in Cargo.toml
+license = "MIT"
+authors = [{ name = "Thor Whalen" }]
+dependencies = ["numpy>=2"]           # NEP 50 float32 rounding is part of the contract
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Rust",
+    "Topic :: Scientific/Engineering",
+]
+
+[project.urls]
+Homepage = "https://github.com/addaix/ef"
+
+[tool.maturin]
+manifest-path = "py/Cargo.toml"       # the binding crate
+module-name = "ef_rust._core"         # the extension lands inside the ef_rust package
+python-source = "python"
+bindings = "pyo3"
+locked = true                         # fail if Cargo.lock is stale (CI and sdist builds)
+strip = true
+exclude = [
+  "**/__pycache__",
+  "**/*.pyc",
+]
+
+[tool.uv]
+# Without these, `uv run` / `uv sync` never rebuild after a Rust edit and silently test a stale binary.
+cache-keys = [
+  { file = "pyproject.toml" },
+  { file = "Cargo.toml" },
+  { file = "Cargo.lock" },
+  { file = "**/Cargo.toml" },
+  { file = "**/*.rs" },
+]

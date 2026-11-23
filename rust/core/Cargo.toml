@@ -1,0 +1,18 @@
+[package]
+name = "ef-hashing-core"
+description = "The feature-hashing kernel of ef's HashingEmbedder (word n-grams, blake2b buckets, signed sublinear tf), bit-exact with the Python reference; no Python types"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+license.workspace = true
+repository = "https://github.com/addaix/ef"
+
+[dependencies]
+thiserror = { workspace = true }
+blake2b_simd = { workspace = true }
+rustc-hash = { workspace = true }
+hashbrown = { workspace = true }
+
+[lints]
+workspace = true
