@@ -93,7 +93,7 @@ The reviewer found no text-level divergence after 3,000 random cases (combining 
 
 ## Checks
 
-`cargo test -p ef-hashing-core` (7 tests), `cargo clippy --workspace --all-targets` with warnings denied, `cargo fmt --check` and `mypy.stubtest ef_rust._core` are all clean. Not run here: `cargo deny` (not installed on this Mac), free-threaded Python, and Linux golden vectors (the BLAS question below).
+`cargo test -p ef-hashing-core` (7 tests), `cargo clippy --workspace --all-targets` with warnings denied, `cargo fmt --check` and `mypy.stubtest ef_rust._core` are all clean. In CI (`rust-ci.yml`, Linux, OpenBLAS), `cargo deny`, the differential tests on Python 3.10 and 3.13, and the thorough profile all pass, so the two backends agree on Linux too. Not run: free-threaded Python, and a comparison of golden vectors between the Mac and Linux (the BLAS question below).
 
 ## Open
 
