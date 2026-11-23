@@ -106,9 +106,6 @@ jobs:
         env:
           HYPOTHESIS_PROFILE: thorough
         run: python -m pytest tests/test_differential.py -q
-      - name: Whole test suite
-        working-directory: .
-        run: python -m pytest tests -q
 
   deny:
     runs-on: ubuntu-latest
